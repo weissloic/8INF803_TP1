@@ -2,7 +2,7 @@ import sys
 from bs4 import BeautifulSoup
 import requests
 import re
-from potion import *
+from Spell import *
 from personnage import *
 
 
@@ -15,53 +15,34 @@ def check_upper_name(string):
 
 def main(args):
     #try:
-    counter = 0
     page = requests.get("https://aonprd.com/Spells.aspx?Class=All")
-    soup = BeautifulSoup(page.content, 'html.parser')
+    HTML_PARSER='html.parser'
+    soup = BeautifulSoup(page.content, HTML_PARSER)
 
     for url in soup.find_all('td'):
-        print(counter)
-        test = BeautifulSoup(str(url), 'html.parser')
-        tag = test.find('a')
-        tmp = tag.get("href").split("=")
-        tmp = tmp[1]
-        tmp_class = Potion(tmp)
+        spellListHtmlPage = BeautifulSoup(str(url), HTML_PARSER)
+        spellDisplayDiv = spellListHtmlPage.find('a')
+        spellName = spellDisplayDiv.get("href").split("=")[1]
+        spell_class = Spell(spellName)
 
-        print(tmp_class.name)
+        spellPage = requests.get("https://aonprd.com/SpellDisplay.aspx?ItemName=" + spell_class.url)
+        soup = BeautifulSoup(spellPage.content, HTML_PARSER)
+        spellDiv = soup.find(id="ctl00_MainContent_DataListTypes_ctl00_LabelName")
 
-        print(tmp_class.url)
-
-        page = requests.get("https://aonprd.com/SpellDisplay.aspx?ItemName=" + tmp_class.url)
-        soup = BeautifulSoup(page.content, 'html.parser')
-        div = soup.find(id="ctl00_MainContent_DataListTypes_ctl00_LabelName")
-
-        #if tmp_class.name == "Agonize":
-        #    print(div)
-
+        #classStringWithlevel = re.search(r"Level<\/b>(.*?)<h", str(spellDiv))
+        spell_class.components = re.search(r"Components<\/b>(.*?)<h", str(spellDiv)).group(1).split(",")
 
         print("---------------------------------\n")
-        #print(div)
-        x = re.search(r"Level<\/b>(.*?)<h", str(div))
-        #print("ui")
-        #result = re.match(pattern, test_string)
 
-        if x:
-            print(x.group(1))
-        else:
-            print(div)
+        print(spellName)
+        print("url : " + spell_class.url)
+        print("components : ")
+        print(spell_class.components)
 
-        counter += 1
-
-    #for test in soup.find_all('tbody'):
-            #test = BeautifulSoup(str(test), 'html.parser')
-           # print(soup.prettify())
-            #print(tag)
-            #x = re.search("^<b>Level.*[\n].*[\n]<$", str(test))
-            #print(test)
-
-
-
-        #print(page.content)
+        #if classStringWithlevel:
+        #   print(classStringWithlevel.group(1))
+        #else:
+        #   print(spellDiv)
 
     #except:
     #    print("error")

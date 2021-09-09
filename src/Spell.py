@@ -1,6 +1,6 @@
 import urllib.request as req
 
-class Potion:
+class Spell:
     def __init__(self, name):
         self.name = name
         self.components = []
