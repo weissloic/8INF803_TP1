@@ -5,48 +5,95 @@ import re
 from Spell import *
 from personnage import *
 
+HTML_PARSER = 'html.parser'
 
-def check_upper_name(string):
-    last_char = string[-1]
-    if last_char.isupper():
-        string = string[:-1]
-        return check_upper_name(string)
-    return string
+class Utils:
+    def check_upper_name(self, string):
+        last_char = string[-1]
+        if last_char.isupper():
+            string = string[:-1]
+            return Utils.check_upper_name(self, string)
 
-def main(args):
-    #try:
-    page = requests.get("https://aonprd.com/Spells.aspx?Class=All")
-    HTML_PARSER='html.parser'
-    soup = BeautifulSoup(page.content, HTML_PARSER)
+        return string
 
-    for url in soup.find_all('td'):
+
+class Parsing:
+    def __init__(self):
+        self.counter_error = 0
+        self.spell_found = False
+        self.counter_spell_not_displayed = 0
+        self.baseUrl = "https://aonprd.com/"
+
+    def init_soup(self, url):
+        page = requests.get(self.baseUrl + url)
+        soup = BeautifulSoup(page.content, HTML_PARSER)
+
+        return soup
+
+    def get_spell_name(self, url):
         spellListHtmlPage = BeautifulSoup(str(url), HTML_PARSER)
         spellDisplayDiv = spellListHtmlPage.find('a')
         spellName = spellDisplayDiv.get("href").split("=")[1]
-        spell_class = Spell(spellName)
 
-        spellPage = requests.get("https://aonprd.com/SpellDisplay.aspx?ItemName=" + spell_class.url)
-        soup = BeautifulSoup(spellPage.content, HTML_PARSER)
-        spellDiv = soup.find(id="ctl00_MainContent_DataListTypes_ctl00_LabelName")
+        return spellName
 
-        #classStringWithlevel = re.search(r"Level<\/b>(.*?)<h", str(spellDiv))
-        spell_class.components = re.search(r"Components<\/b>(.*?)<h", str(spellDiv)).group(1).split(",")
+    def get_nice_parsing(self, find_infos, name):
+        if "Spell Resistance" not in find_infos.group(0):
+            self.counter_spell_not_displayed += 1
+            regex = name + "<\/h1>.*(Level<\/b>(.*?)<.*(Components<\/b>(.*?)<h)()).*Description<\/h3>"
+            self.spell_found = False
+        else:
+            self.spell_found = True
+            regex = name + "<\/h1>.*(Level<\/b>(.*?)<.*(Components<\/b>(.*?)<h).*(Spell Resistance<\/b>(.*?)<h).*).*<\/h3>?"
 
-        print("---------------------------------\n")
+        return regex
 
-        print(spellName)
-        print("url : " + spell_class.url)
-        print("components : ")
-        print(spell_class.components)
 
-        #if classStringWithlevel:
-        #   print(classStringWithlevel.group(1))
-        #else:
-        #   print(spellDiv)
+def main(args):
+    try:
+        tt = Utils()
+        prs = Parsing()
 
-    #except:
-    #    print("error")
-    #    sys.exit(84)
+        soup = prs.init_soup("Spells.aspx?Class=All")
+
+
+        for url in soup.find_all('td'):
+            spell_class = Spell(prs.get_spell_name(url))
+            soup = prs.init_soup("SpellDisplay.aspx?ItemName=" + spell_class.url)
+            spellDiv = soup.find(id="ctl00_MainContent_DataListTypes")
+
+
+            if "(" in spell_class.name:
+                spell_class.name = spell_class.name.replace("(", "\(").replace(")", "\)")
+
+
+            regex = spell_class.name + "<\/h1>.*(Level<\/b>(.*?))<.*Description<\/h3>"
+            spellDiv = str(spellDiv).replace("\n", "")
+
+            find_infos = re.search(regex, str(spellDiv))
+
+
+            if find_infos:
+                regex = prs.get_nice_parsing(find_infos, spell_class.name)
+                print(spell_class.name)
+                find_infos = re.search(regex, str(spellDiv))
+                print(find_infos.group(2))
+                print(find_infos.group(4))
+
+                if prs.spell_found == True:
+                    print(find_infos.group(6))
+                else:
+                    print("no")
+            else:
+                prs.counter_error += 1
+
+            print("error: ", prs.counter_error)
+            print("spell not displayed: ", prs.counter_spell_not_displayed)
+
+            print("---------------------------------\n")
+    except:
+        print("error")
+        sys.exit(84)
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
