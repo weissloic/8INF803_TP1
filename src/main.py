@@ -75,15 +75,15 @@ def main(args):
 
             if find_infos:
                 regex = prs.get_nice_parsing(find_infos, spell_class.name)
-                print(spell_class.name)
+                print("name class: " + spell_class.name)
                 find_infos = re.search(regex, str(spellDiv))
-                print(find_infos.group(2))
-                print(find_infos.group(4))
+                print("classe linked: " + find_infos.group(2))
+                print("Components: " + find_infos.group(4))
 
                 if prs.spell_found == True:
-                    print(find_infos.group(6))
+                    print("Spells Resistance: " + find_infos.group(6))
                 else:
-                    print("no")
+                    print("Spells Resistance: " + "no")
             else:
                 prs.counter_error += 1
 
