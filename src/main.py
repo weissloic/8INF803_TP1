@@ -3,9 +3,9 @@ from bs4 import BeautifulSoup
 import requests
 import re
 from Spell import *
-from personnage import *
 
 HTML_PARSER = 'html.parser'
+
 
 class Utils:
     def check_upper_name(self, string):
@@ -22,10 +22,10 @@ class Parsing:
         self.counter_error = 0
         self.spell_found = False
         self.counter_spell_not_displayed = 0
-        self.baseUrl = "https://aonprd.com/"
+        self.base_url = "https://aonprd.com/"
 
     def init_soup(self, url):
-        page = requests.get(self.baseUrl + url)
+        page = requests.get(self.base_url + url)
         soup = BeautifulSoup(page.content, HTML_PARSER)
 
         return soup
@@ -48,61 +48,66 @@ class Parsing:
 
         return regex
 
-    def extract_spell_list( self, spell_string):
+    def extract_spell_list(self, spell_string):
         spell_list = {}
 
         for spell in spell_string.split(","):
-            spell_and_level = re.search(r"(.*)\s(.*)",spell[1:])
-            spell_list[spell_and_level.group(1)]=spell_and_level.group(2)
+            spell_and_level = re.search(r"(.*)\s(.*)", spell[1:])
+            spell_list[spell_and_level.group(1)] = spell_and_level.group(2)
 
         return spell_list
 
+    def get_minimum_level(self, spell_list):
+        minValue = min(spell_list.items(), key=lambda x: x[1])
+        key_min = min(spell_list.keys(), key=(lambda k: spell_list[k]))
+        return spell_list[key_min]
+
 
 def main(args):
-    #try:
-        tt = Utils()
-        prs = Parsing()
+    # try:
+    tt = Utils()
+    prs = Parsing()
 
-        soup = prs.init_soup("Spells.aspx?Class=All")
+    soup = prs.init_soup("Spells.aspx?Class=All")
 
+    for url in soup.find_all('td'):
+        spell_class = Spell(prs.get_spell_name(url))
+        soup = prs.init_soup("SpellDisplay.aspx?ItemName=" + spell_class.url)
+        spellDiv = soup.find(id="ctl00_MainContent_DataListTypes")
 
-        for url in soup.find_all('td'):
-            spell_class = Spell(prs.get_spell_name(url))
-            soup = prs.init_soup("SpellDisplay.aspx?ItemName=" + spell_class.url)
-            spellDiv = soup.find(id="ctl00_MainContent_DataListTypes")
+        if "(" in spell_class.name:
+            spell_class.name = spell_class.name.replace("(", "\(").replace(")", "\)")
 
+        regex = spell_class.name + "<\/h1>.*(Level<\/b>(.*?))<.*Description<\/h3>"
+        spellDiv = str(spellDiv).replace("\n", "")
 
-            if "(" in spell_class.name:
-                spell_class.name = spell_class.name.replace("(", "\(").replace(")", "\)")
+        find_infos = re.search(regex, str(spellDiv))
 
-
-            regex = spell_class.name + "<\/h1>.*(Level<\/b>(.*?))<.*Description<\/h3>"
-            spellDiv = str(spellDiv).replace("\n", "")
-
+        if find_infos:
+            regex = prs.get_nice_parsing(find_infos, spell_class.name)
+            print("name class: " + spell_class.name)
             find_infos = re.search(regex, str(spellDiv))
+            spell_list = prs.extract_spell_list(find_infos.group(2))
+            print("classe linked:", spell_list)
+            print("Minimum Level: "+prs.get_minimum_level(spell_list))
+            print("Components: " + find_infos.group(4))
 
-
-            if find_infos:
-                regex = prs.get_nice_parsing(find_infos, spell_class.name)
-                print("name class: " + spell_class.name)
-                find_infos = re.search(regex, str(spellDiv))
-                print("classe linked:",prs.extract_spell_list(find_infos.group(2)))
-                print("Components: " + find_infos.group(4))
-
-                if prs.spell_found == True:
-                    print("Spells Resistance: " + find_infos.group(6))
-                else:
-                    print("Spells Resistance: " + "no")
+            if prs.spell_found:
+                print("Spells Resistance: " + find_infos.group(6))
             else:
-                prs.counter_error += 1
+                print("Spells Resistance: " + "no")
+        else:
+            prs.counter_error += 1
 
-            print("error: ", prs.counter_error)
-            print("spell not displayed: ", prs.counter_spell_not_displayed)
+        print("error: ", prs.counter_error)
+        print("spell not displayed: ", prs.counter_spell_not_displayed)
 
-            print("---------------------------------\n")
-   # except:
-    #    print("error")
-    #    sys.exit(84)
+        print("---------------------------------\n")
+
+
+# except:
+#    print("error")
+#    sys.exit(84)
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
