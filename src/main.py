@@ -48,9 +48,18 @@ class Parsing:
 
         return regex
 
+    def extract_spell_list( self, spell_string):
+        spell_list = {}
+
+        for spell in spell_string.split(","):
+            spell_and_level = re.search(r"(.*)\s(.*)",spell[1:])
+            spell_list[spell_and_level.group(1)]=spell_and_level.group(2)
+
+        return spell_list
+
 
 def main(args):
-    try:
+    #try:
         tt = Utils()
         prs = Parsing()
 
@@ -77,7 +86,7 @@ def main(args):
                 regex = prs.get_nice_parsing(find_infos, spell_class.name)
                 print("name class: " + spell_class.name)
                 find_infos = re.search(regex, str(spellDiv))
-                print("classe linked: " + find_infos.group(2))
+                print("classe linked:",prs.extract_spell_list(find_infos.group(2)))
                 print("Components: " + find_infos.group(4))
 
                 if prs.spell_found == True:
@@ -91,9 +100,9 @@ def main(args):
             print("spell not displayed: ", prs.counter_spell_not_displayed)
 
             print("---------------------------------\n")
-    except:
-        print("error")
-        sys.exit(84)
+   # except:
+    #    print("error")
+    #    sys.exit(84)
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
