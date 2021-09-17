@@ -52,6 +52,9 @@ class Parsing:
         spell_list = {}
 
         for spell in spell_string.split(","):
+            print(spell)
+            if spell[-1] == ' ':
+                spell = spell[:-1]
             spell_and_level = re.search(r"(.*)\s(.*)", spell[1:])
             spell_list[spell_and_level.group(1)] = spell_and_level.group(2)
 
@@ -85,11 +88,24 @@ def main(args):
 
         if find_infos:
             regex = prs.get_nice_parsing(find_infos, spell_class.name)
+
+
             print("name class: " + spell_class.name)
             find_infos = re.search(regex, str(spellDiv))
-            spell_list = prs.extract_spell_list(find_infos.group(2))
+            spell_list = ""
+            print(re.sub(r"\([^()]*\)", "", find_infos.group(2)))
+
+            tmp = find_infos.group(2)
+            if tmp.find( '('):
+                tmp = re.sub(r"\([^()]*\)", "", find_infos.group(2))
+            else:
+                tmp = re.sub(r"\([^()]*\)", "", find_infos.group(2))
+
+            spell_list = prs.extract_spell_list(tmp)
+            #start = find_infos.group(2).find( '(' )
+
             print("classe linked:", spell_list)
-            print("Minimum Level: "+prs.get_minimum_level(spell_list))
+            #print("Minimum Level: "+prs.get_minimum_level(spell_list))
             print("Components: " + find_infos.group(4))
 
             if prs.spell_found:
