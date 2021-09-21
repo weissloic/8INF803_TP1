@@ -10,7 +10,6 @@ def main():
             "pageRank": "1",
             "adjlist": ["Page_B", "Page_C"]
         }
-
     }
 
 
