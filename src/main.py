@@ -3,6 +3,9 @@ from bs4 import BeautifulSoup
 import requests
 import re
 from Spell import *
+from pymongo import MongoClient
+from random import randint
+
 
 HTML_PARSER = 'html.parser'
 
@@ -68,8 +71,11 @@ class Parsing:
 
 def main(args):
     # try:
+
     tt = Utils()
     prs = Parsing()
+    client = MongoClient("mongodb://root:rootpassword@localhost:27017")
+    db = client.business
 
     soup = prs.init_soup("Spells.aspx?Class=All")
 
@@ -96,7 +102,7 @@ def main(args):
             print(re.sub(r"\([^()]*\)", "", find_infos.group(2)))
 
             tmp = find_infos.group(2)
-            if tmp.find( '('):
+            if tmp.find('('):
                 tmp = re.sub(r"\([^()]*\)", "", find_infos.group(2))
             else:
                 tmp = re.sub(r"\([^()]*\)", "", find_infos.group(2))
@@ -105,18 +111,50 @@ def main(args):
             #start = find_infos.group(2).find( '(' )
 
             print("classe linked:", spell_list)
+
+            spell_class.level = prs.get_minimum_level(spell_list)
+
             #print("Minimum Level: "+prs.get_minimum_level(spell_list))
             print("Components: " + find_infos.group(4))
 
+            tmpComponent = find_infos.group(4)
+            if tmpComponent.find('('):
+                tmpComponent = re.sub(r"\([^()]*\)", "", find_infos.group(4))
+
+            print(tmpComponent.split(","))
+
+            spell_class.classLinked = tmp
+            spell_class.components = tmpComponent.split(",")
+
+
+            print("Spells Resistance: ")
             if prs.spell_found:
                 print("Spells Resistance: " + find_infos.group(6))
+                if "yes" in find_infos.group(6):
+                    spell_class.resistance = True
+                else:
+                    spell_class.resistance = False
             else:
-                print("Spells Resistance: " + "no")
+                spell_class.resistance = False
+
+
+            spell = {
+                'name': spell_class.name,
+                'level': spell_class.level,
+                'class_linked': spell_class.classLinked,
+                'components': spell_class.components,
+                'spell_resistance': spell_class.resistance
+            }
+
+            result = db.reviews.insert_one(spell)
         else:
             prs.counter_error += 1
 
+
         print("error: ", prs.counter_error)
         print("spell not displayed: ", prs.counter_spell_not_displayed)
+
+
 
         print("---------------------------------\n")
 

@@ -1,23 +1,39 @@
 services:
   web:
     build: .
+    networks:
+      back:
     volumes:
-      - .:/usr/src/app/
-  mongodb:
-    image: mongo:latest
-    container_name: mongodb
-    hostname: mongodb
-    volumes:
-      - ./.docker/mongodb/mongod.conf:/etc/mongod.conf
-      - ./.docker/mongodb/initdb.d/:/docker-entrypoint-initdb.d/
-      - ./.docker/mongodb/data/db/:/data/db/
-      - ./.docker/mongodb/data/log/:/var/log/mongodb/
-    env_file:
-      - .env
+      - ./db:/usr/src/app/
+  mongo_db:
+    image: mongo:4.2.12
+    networks:
+      back:
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword
     ports:
-      - "27017:27017"
-    command: [ "mongod" ]
+      - 27017:27017
+    volumes:
+      - ./doc/:/data/db
+
+  mongo_express:
+    image: mongo-express:0.54.0
+    networks:
+      back:
+    environment:
+      - ME_CONFIG_OPTIONS_EDITORTHEME=default
+      - ME_CONFIG_MONGODB_SERVER=mongo_db
+      - ME_CONFIG_MONGODB_PORT=27017
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+      - ME_CONFIG_MONGODB_AUTH_DATABASE=mydb
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=root
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=rootpassword
+    ports:
+      - "8081:8081"
+    restart: on-failure
+    depends_on:
+      - mongo_db
+
+networks:
+  back:
