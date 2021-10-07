@@ -115,7 +115,6 @@ def getComponent(find_infos):
     if tmpComponent.find('('):
         tmpComponent = re.sub(r"\([^()]*\)", "", find_infos.group(4))
 
-
     print(tmpComponent.split(","))
     listComp = tmpComponent.split(",")
     listComp = [x.strip(' ') for x in listComp]
