@@ -1,124 +1,24 @@
 import sys
-from bs4 import BeautifulSoup
-import requests
 import re
 from Spell import *
-from pymongo import MongoClient
-from random import randint
-from bson.code import Code
+from SqLite import *
 
-import sqlite3
+from Parsing import *
+
+from MongoDb import *
+from Utils import *
 
 HTML_PARSER = 'html.parser'
-
-
-class Utils:
-    def check_upper_name(self, string):
-        last_char = string[-1]
-        if last_char.isupper():
-            string = string[:-1]
-            return Utils.check_upper_name(self, string)
-
-        return string
-
-
-class Parsing:
-    def __init__(self):
-        self.counter_error = 0
-        self.spell_found = False
-        self.counter_spell_not_displayed = 0
-        self.base_url = "https://aonprd.com/"
-
-    def init_soup(self, url):
-        page = requests.get(self.base_url + url)
-        soup = BeautifulSoup(page.content, HTML_PARSER)
-
-        return soup
-
-    def get_spell_name(self, url):
-        spellListHtmlPage = BeautifulSoup(str(url), HTML_PARSER)
-        spellDisplayDiv = spellListHtmlPage.find('a')
-        spellName = spellDisplayDiv.get("href").split("=")[1]
-
-        return spellName
-
-    def get_nice_parsing(self, find_infos, name):
-        if "Spell Resistance" not in find_infos.group(0):
-            self.counter_spell_not_displayed += 1
-            regex = name + "<\/h1>.*(Level<\/b>(.*?)<.*(Components<\/b>(.*?)<h)()).*Description<\/h3>"
-            self.spell_found = False
-        else:
-            self.spell_found = True
-            regex = name + "<\/h1>.*(Level<\/b>(.*?)<.*(Components<\/b>(.*?)<h).*(Spell Resistance<\/b>(.*?)<h).*).*<\/h3>?"
-
-        return regex
-
-    def extract_spell_list(self, spell_string):
-        spell_list = {}
-
-        for spell in spell_string.split(","):
-            print(spell)
-            if spell[-1] == ' ':
-                spell = spell[:-1]
-            spell_and_level = re.search(r"(.*)\s(.*)", spell[1:])
-            spell_list[spell_and_level.group(1)] = spell_and_level.group(2)
-
-        return spell_list
-
-    def get_minimum_level(self, spell_list):
-        minValue = min(spell_list.items(), key=lambda x: x[1])
-        key_min = min(spell_list.keys(), key=(lambda k: spell_list[k]))
-        return spell_list[key_min]
-
-class MongoDB:
-
-    def __init__(self):
-        self.client = MongoClient("mongodb://root:rootpassword@localhost:27017")
-        self.db = self.client.business
-
-    def map_reduce_request(self):
-        collection = self.db.delete_me
-
-        map = Code("function () {"
-                   "  var level_wiz;"
-                   "if (this.components.includes(' V') && this.components.length == 1) {"
-                   "if (this.class_linked.includes('wizard')) {"
-                   " level_wiz = this.class_linked.split('wizard ')[1];"
-                   "if (parseInt(level_wiz) < 4)"
-                   " emit(this.name, this.components)"
-                   "}"
-                   "}"
-                   "}")
-
-        reduce = Code("function (key, values) {"
-                      "  var total = 0;"
-                      "  for (var i = 0; i < values.length; i++) {"
-                      "    total += values[i];"
-                      "  }"
-                      "  return total;"
-                      "}")
-
-        result = self.collection.map_reduce(map, reduce, "myresults")
-        counter = 0
-
-        for doc in result.find():
-            counter += 1
-            print(doc)
-
-class mySql():
-    def __init__(self):
-        self.conn = sqlite3.connect('example.db')
 
 def main(args):
     # try:
 
     tt = Utils()
     prs = Parsing()
-    #client = MongoClient("mongodb://root:rootpassword@localhost:27017")
-    #db = client.business
 
     mongo = MongoDB()
     #mongo.map_reduce_request()
+    sqLite = SqLite()
 
 
     soup = prs.init_soup("Spells.aspx?Class=All")
@@ -190,7 +90,9 @@ def main(args):
                 'spell_resistance': spell_class.resistance
             }
 
-            result = mongo.db.reviews.insert_one(spell)
+            mongo.db.reviews.insert_one(spell)
+            sqLite.put_spell(spell_class)
+
         else:
             prs.counter_error += 1
 
