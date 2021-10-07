@@ -2,10 +2,12 @@ from pymongo import MongoClient
 from bson.code import Code
 
 def main():
+    # Connection to DB
     client = MongoClient('localhost', 27017)
     db = client.exercice2
     collection = db.graphPR
     collection.delete_many({})
+    # Init data with pageRank = 1
     graph = [
         {"_id": "A", "value": {"pageRank": 1, "adjList": ["B", "C"]}},
         {"_id": "B", "value": {"pageRank": 1, "adjList": ["C"]}},
@@ -15,6 +17,7 @@ def main():
     collection.insert_many(graph)
 
     for i in range(0,21):
+        print("VALEUR DE I : " + str(i))
         map = Code("function () {"
                 "  var key;"
                 "  var count = 0;"
@@ -29,7 +32,8 @@ def main():
                 "}")
 
         reduce = Code("function (key, value) {"
-                    "  var tab = {"
+                    "  const DAMPING_FACTOR = 0.85;"
+                    "  var resultTab = {"
                     "  pageRank:'',"
                     "  adjList:'' };"
                     "  var somme = 0;"
@@ -39,23 +43,23 @@ def main():
                     "         somme += value[i]"
                     "             }"
                     "       else{"
-                    "          tab.adjList = value[i];"
+                    "          resultTab.adjList = value[i];"
                     "         }"
                     "       }"
-                    "  newPR = 0.15 + 0.85*somme;"
-                    "  tab.pageRank = newPR;"
-                    "  return tab;"
+                    "  newPR = (1-DAMPING_FACTOR) + DAMPING_FACTOR*somme;"
+                    "  resultTab.pageRank = newPR;"
+                    "  return resultTab;"
                     "}")
         result = collection.map_reduce(map, reduce, "myresults")
         collection.delete_many({})
-        tab = []
-        compteur = 0
-        print("VALEUR DE I : " + str(i))
+        resultTab = []
         for doc in result.find():
-           tab.append(doc)
+           resultTab.append(doc)
            print(doc)
-        compteur = compteur+1
-        collection.insert_many(tab)
+        collection.insert_many(resultTab)
+        print("***********************************************************************************")
+        print("***********************************************************************************")
+        print("***********************************************************************************")
 
 
 if __name__ == "__main__":
