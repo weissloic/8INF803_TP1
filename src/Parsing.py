@@ -2,8 +2,9 @@ import requests
 from bs4 import BeautifulSoup
 import re
 
-from src.main import HTML_PARSER
+#from main import HTML_PARSER
 
+HTML_PARSER = "html.parser"
 
 class Parsing:
     def __init__(self):

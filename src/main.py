@@ -8,7 +8,6 @@ from Parsing import *
 from MongoDb import *
 from Utils import *
 
-
 def getComponent(find_infos):
     print("Components: " + find_infos.group(4))
 
@@ -66,7 +65,7 @@ def main(args):
     #mongo = MongoDB()
     #mongo.map_reduce_request()
 
-    """soup = prs.init_soup("Spells.aspx?Class=All")
+    soup = prs.init_soup("Spells.aspx?Class=All")
 
     for url in soup.find_all('td'):
         spell_class = Spell(prs.get_spell_name(url))
@@ -101,7 +100,7 @@ def main(args):
                 'spell_resistance': spell_class.resistance
             }
 
-            mongo.db.reviews.insert_one(spell)
+            #mongo.db.reviews.insert_one(spell)
             sqLite.put_spell(spell_class)
 
             #result = mongo.db.reviews.insert_one(spell)
@@ -112,7 +111,7 @@ def main(args):
 
         print("error: ", prs.counter_error)
         print("spell not displayed: ", prs.counter_spell_not_displayed)
-        print("---------------------------------\n")"""
+        print("---------------------------------\n")
 
 
 # except:
