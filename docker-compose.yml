@@ -5,6 +5,7 @@ services:
       back:
     volumes:
       - ./db:/usr/src/app/
+
   mongo_db:
     image: mongo:4.2.12
     networks:

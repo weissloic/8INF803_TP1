@@ -5,7 +5,9 @@ import re
 from Spell import *
 from pymongo import MongoClient
 from random import randint
+from bson.code import Code
 
+import sqlite3
 
 HTML_PARSER = 'html.parser'
 
@@ -68,14 +70,56 @@ class Parsing:
         key_min = min(spell_list.keys(), key=(lambda k: spell_list[k]))
         return spell_list[key_min]
 
+class MongoDB:
+
+    def __init__(self):
+        self.client = MongoClient("mongodb://root:rootpassword@localhost:27017")
+        self.db = self.client.business
+
+    def map_reduce_request(self):
+        collection = self.db.delete_me
+
+        map = Code("function () {"
+                   "  var level_wiz;"
+                   "if (this.components.includes(' V') && this.components.length == 1) {"
+                   "if (this.class_linked.includes('wizard')) {"
+                   " level_wiz = this.class_linked.split('wizard ')[1];"
+                   "if (parseInt(level_wiz) < 4)"
+                   " emit(this.name, this.components)"
+                   "}"
+                   "}"
+                   "}")
+
+        reduce = Code("function (key, values) {"
+                      "  var total = 0;"
+                      "  for (var i = 0; i < values.length; i++) {"
+                      "    total += values[i];"
+                      "  }"
+                      "  return total;"
+                      "}")
+
+        result = self.collection.map_reduce(map, reduce, "myresults")
+        counter = 0
+
+        for doc in result.find():
+            counter += 1
+            print(doc)
+
+class mySql():
+    def __init__(self):
+        self.conn = sqlite3.connect('example.db')
 
 def main(args):
     # try:
 
     tt = Utils()
     prs = Parsing()
-    client = MongoClient("mongodb://root:rootpassword@localhost:27017")
-    db = client.business
+    #client = MongoClient("mongodb://root:rootpassword@localhost:27017")
+    #db = client.business
+
+    mongo = MongoDB()
+    #mongo.map_reduce_request()
+
 
     soup = prs.init_soup("Spells.aspx?Class=All")
 
@@ -146,7 +190,7 @@ def main(args):
                 'spell_resistance': spell_class.resistance
             }
 
-            result = db.reviews.insert_one(spell)
+            result = mongo.db.reviews.insert_one(spell)
         else:
             prs.counter_error += 1
 
