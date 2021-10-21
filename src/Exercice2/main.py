@@ -24,9 +24,9 @@ def main():
                 "  for(key in this.value.adjList) {"
                 "        count++;"
                 "    }"
-                "  b = this.value.pageRank;"
-                "  this.value.adjList.forEach(function(url) {"
-                "    emit(url, b/count);"
+                "  PrValue = this.value.pageRank;"
+                "  this.value.adjList.forEach(function(id) {"
+                "    emit(id, PrValue/count);"
                 "    });"
                 " emit(this._id, this.value.adjList)"
                 "}")
@@ -54,8 +54,8 @@ def main():
         collection.delete_many({})
         resultTab = []
         for doc in result.find():
-           resultTab.append(doc)
-           print(doc)
+            resultTab.append(doc)
+            print(doc)
         collection.insert_many(resultTab)
         print("***********************************************************************************")
         print("***********************************************************************************")
