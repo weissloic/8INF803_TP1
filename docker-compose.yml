@@ -4,7 +4,7 @@ services:
     networks:
       back:
     volumes:
-      - ./db:/usr/src/app/
+      - .:/usr/src/app/
 
   mongo_db:
     image: mongo:4.2.12
@@ -38,3 +38,5 @@ services:
 
 networks:
   back:
+    external: true
+    name: back

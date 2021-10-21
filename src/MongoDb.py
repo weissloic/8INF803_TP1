@@ -6,10 +6,10 @@ class MongoDB:
 
     def __init__(self):
         self.client = MongoClient("mongodb://root:rootpassword@localhost:27017")
-        self.db = self.client.business.reviews
+        self.db = self.client.business
 
     def map_reduce_request(self):
-        collection = self.db
+        collection = self.db.reviews
 
         map = Code("function () {"
                    "  var level_wiz;"

@@ -106,7 +106,7 @@ def parsePage(mongo, prs, sqLite):
                 'spell_resistance': spell_class.resistance
             }
 
-            mongo.db.insert_one(spell)
+            mongo.db.reviews.insert_one(spell)
             print("data put in mongoBD")
             sqLite.put_spell(spell_class)
             #result = mongo.db.reviews.insert_one(spell)
