@@ -29,11 +29,13 @@ class Parsing:
     def get_nice_parsing(self, find_infos, name):
         if "Spell Resistance" not in find_infos.group(0):
             self.counter_spell_not_displayed += 1
-            regex = name + "<\/h1>.*(Level<\/b>(.*?)<.*(Components<\/b>(.*?)<h)()).*Description<\/h3>"
+            #regex = name + "<\/h1>.*(Level<\/b>(.*?)<.*(Components<\/b>(.*?)<h)()).*Description<\/h3>"
+            regex = name + "*<\/h1>.*?(Level)<\/b>(.*?)<.*?(Components<\/b>(.*?)<h)().*Description<\/h3>"
             self.spell_found = False
         else:
             self.spell_found = True
-            regex = name + "<\/h1>.*(Level<\/b>(.*?)<.*(Components<\/b>(.*?)<h).*(Spell Resistance<\/b>(.*?)<h).*).*<\/h3>?"
+            #regex = name + "<\/h1>.*(Level<\/b>(.*?)<.*(Components<\/b>(.*?)<h).*(Spell Resistance<\/b>(.*?)<h).*).*<\/h3>?"
+            regex = name + "*<\/h1>.*?(Level<\/b>(.*?)<.*?(Components<\/b>(.*?)<h).*(Spell Resistance<\/b>(.*?)<h).*).*<\/h3>?"
 
         return regex
 
@@ -41,7 +43,7 @@ class Parsing:
         spell_list = {}
 
         for spell in spell_string.split(","):
-            print(spell)
+            #print(spell)
             if spell[-1] == ' ':
                 spell = spell[:-1]
             spell_and_level = re.search(r"(.*)\s(.*)", spell[1:])

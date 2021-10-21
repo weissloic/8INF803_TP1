@@ -6,17 +6,17 @@ class MongoDB:
 
     def __init__(self):
         self.client = MongoClient("mongodb://root:rootpassword@localhost:27017")
-        self.db = self.client.business
+        self.db = self.client.business.reviews
 
     def map_reduce_request(self):
-        collection = self.db.delete_me
+        collection = self.db
 
         map = Code("function () {"
                    "  var level_wiz;"
-                   "if (this.components.includes(' V') && this.components.length == 1) {"
+                   "if (this.components.includes('V') && this.components.length == 1) {"
                    "if (this.class_linked.includes('wizard')) {"
                    " level_wiz = this.class_linked.split('wizard ')[1];"
-                   "if (parseInt(level_wiz) < 4)"
+                   "if (parseInt(level_wiz) <= 4)"
                    " emit(this.name, this.components)"
                    "}"
                    "}"
@@ -30,7 +30,7 @@ class MongoDB:
                       "  return total;"
                       "}")
 
-        result = self.collection.map_reduce(map, reduce, "myresults")
+        result = collection.map_reduce(map, reduce, "myresults")
         counter = 0
 
         for doc in result.find():

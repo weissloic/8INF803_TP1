@@ -7,6 +7,9 @@ from Parsing import *
 
 from MongoDb import *
 from Utils import *
+import os
+
+import json
 
 def getComponent(find_infos):
     print("Components: " + find_infos.group(4))
@@ -15,7 +18,6 @@ def getComponent(find_infos):
     if tmpComponent.find('('):
         tmpComponent = re.sub(r"\([^()]*\)", "", find_infos.group(4))
 
-    print(tmpComponent.split(","))
     listComp = tmpComponent.split(",")
     listComp = [x.strip(' ') for x in listComp]
     print(listComp)
@@ -45,30 +47,33 @@ def getLevel(classLinked, prs):
 
 def getClassLinked(find_infos):
 
-    if find_infos.group(2).find('('):
-        tmp = re.sub(r"\([^()]*\)", "", find_infos.group(2))
-    else:
-        tmp = re.sub(r"\([^()]*\)", "", find_infos.group(2))
+    tmp = re.sub(r"\([^()]*\)", "", find_infos.group(2))
 
     return tmp
 
-def main(args):
-    # try:
+def fill_file(spell):
 
-    tt = Utils()
-    prs = Parsing()
+    a = []
+    filename = 'myFile.json'
 
-    mongo = MongoDB()
-    #mongo.map_reduce_request()
-    sqLite = SqLite()
+    if not os.path.isfile(filename):
+        a.append(spell)
+        with open(filename, mode='w') as f:
+            f.write(json.dumps(a, indent=2))
+    else:
+        with open(filename) as feedsjson:
+            feeds = json.load(feedsjson)
 
-    #mongo = MongoDB()
-    #mongo.map_reduce_request()
+        feeds.append(spell)
+        with open(filename, mode='w') as f:
+            f.write(json.dumps(feeds, indent=2))
 
+def parsePage(mongo, prs, sqLite):
     soup = prs.init_soup("Spells.aspx?Class=All")
 
     for url in soup.find_all('td'):
         spell_class = Spell(prs.get_spell_name(url))
+        #spell_class = Spell("Dimension Door")
         soup = prs.init_soup("SpellDisplay.aspx?ItemName=" + spell_class.url)
         spellDiv = soup.find(id="ctl00_MainContent_DataListTypes")
 
@@ -85,6 +90,7 @@ def main(args):
 
             print("name class: " + spell_class.name)
             find_infos = re.search(regex, str(spellDiv))
+            print(find_infos.group(1))
             print(re.sub(r"\([^()]*\)", "", find_infos.group(2)))
 
             spell_class.classLinked = getClassLinked(find_infos)
@@ -100,9 +106,9 @@ def main(args):
                 'spell_resistance': spell_class.resistance
             }
 
-            #mongo.db.reviews.insert_one(spell)
+            mongo.db.insert_one(spell)
+            print("data put in mongoBD")
             sqLite.put_spell(spell_class)
-
             #result = mongo.db.reviews.insert_one(spell)
 
         else:
@@ -113,6 +119,63 @@ def main(args):
         print("spell not displayed: ", prs.counter_spell_not_displayed)
         print("---------------------------------\n")
 
+
+def fill_db_file(mongo, sqLite):
+    filename = 'myFile.json'
+
+    with open(filename) as feedsjson:
+        feeds = json.load(feedsjson)
+
+    print(feeds[0])
+    for spell in feeds:
+        spell_class = Spell(spell["name"])
+        spell_class.level = spell["level"]
+        spell_class.classLinked = spell["class_linked"]
+        spell_class.components = spell["components"]
+        spell_class.resistance = spell["spell_resistance"]
+
+        mongo.db.reviews.insert_one(spell)
+        print("data put in mongoBD")
+        sqLite.put_spell(spell_class)
+
+def menu(mongo, prs, sqLite):
+
+    print('Select the operation to do:')
+    print('1: Parse the page and fill the DB')
+    print('2: Execute MongoDB Map Reduce (make sure MDB is filled)')
+    print('3: Execute SQL Request (make sure SQL is filled)')
+    print('4: Fill the DBs with an example file')
+    print('5: Exit the program')
+    x = input()
+
+    print('\n')
+
+    if int(x) == 1:
+        parsePage(mongo, prs, sqLite)
+    if int(x) == 2:
+        mongo.map_reduce_request()
+    if int(x) == 3:
+        sqLite.select_spell()
+    if int(x) == 4:
+        fill_db_file(mongo, sqLite)
+    if int(x) == 5:
+        sys.exit(0)
+
+
+    print('\n---------------------------\n')
+
+    menu(mongo, prs, sqLite)
+
+def main(args):
+    # try:
+
+    tt = Utils()
+    prs = Parsing()
+
+    mongo = MongoDB()
+    sqLite = SqLite("spell.db")
+
+    menu(mongo, prs, sqLite)
 
 # except:
 #    print("error")

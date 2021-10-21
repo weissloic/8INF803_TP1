@@ -16,24 +16,25 @@ insert_query = ''' INSERT INTO spell(name,level,components,spell_resistance,clas
 
 drop_table_query = '''DROP TABLE IF EXISTS spell'''
 
-select_spell_query='''select * from spell 
+select_spell_query='''
+select * from spell 
 WHERE 
-components = ' V'
-AND
-class_linked LIKE '%wizard 4%'
-				OR '%wizard 3%'
-				OR '%wizard 2%' 
-				OR '%wizard 1%' 
+components = 'V'
+AND (
+class_linked LIKE '%wizard 4%' 
+OR class_linked LIKE '%wizard 3%'
+OR class_linked LIKE '%wizard 2%' 
+OR class_linked LIKE '%wizard 1%' )
 '''
 
 
 class SqLite():
-    def __init__(self):
+    def __init__(self, db_name):
 
         try:
             self.sqliteConnection = sqlite3.connect(db_name)
-            print("SQLite up")
             self.create_base()
+
         except sqlite3.Error as error:
             print("can't open dataBase", error)
             self.sqliteConnection.close()
@@ -41,8 +42,9 @@ class SqLite():
     def create_base(self):
 
         try:
+
             cursor = self.sqliteConnection.cursor()
-            cursor.execute(drop_table_query)
+            #cursor.execute(drop_table_query)
             cursor.execute(create_query)
             self.sqliteConnection.commit()
             cursor.close()
@@ -54,6 +56,7 @@ class SqLite():
     def put_spell(self,spell_class):
 
         try:
+            self.sqliteConnection = sqlite3.connect(db_name)
             cursor = self.sqliteConnection.cursor()
             cursor.execute(insert_query,(spell_class.name,spell_class.level,':'.join(spell_class.components),spell_class.resistance,spell_class.classLinked,))
             self.sqliteConnection.commit()
@@ -64,19 +67,11 @@ class SqLite():
 
 
     def select_spell(self):
-        try:
-            cursor = self.sqliteConnection.cursor()
-            cursor.execute(select_spell_query)
-            self.sqliteConnection.commit()
-            result= cursor.fetchall()
-            cursor.close()
-            print("table creation done")
-            return result
-        except sqlite3.Error as error:
-            print("can't create SqliteTable", error)
-            self.sqliteConnection.close()
+        self.sqliteConnection = sqlite3.connect(db_name)
+        cursor = self.sqliteConnection.cursor()
+        cursor.execute(select_spell_query)
+        result = cursor.fetchall()
+        cursor.close()
 
-
-
-    def close_sql(self):
-        self.sqliteConnection.close()
+        for r in result:
+            print(r)
