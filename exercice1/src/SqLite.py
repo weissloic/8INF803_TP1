@@ -2,7 +2,7 @@ import os
 import sqlite3
 from Spell import *
 
-db_name = 'SQLite.db'
+db_name = 'spell.db'
 
 create_query = '''CREATE TABLE spell (
                             name TEXT PRIMARY KEY,
@@ -11,7 +11,7 @@ create_query = '''CREATE TABLE spell (
                             spell_resistance  INTEGER,
                             class_linked TEXT);'''
 
-insert_query = ''' INSERT INTO spell(name,level,components,spell_resistance,class_linked)
+insert_query = ''' INSERT OR REPLACE INTO spell(name,level,components,spell_resistance,class_linked)
              VALUES(?,?,?,?,?) '''
 
 drop_table_query = '''DROP TABLE IF EXISTS spell'''
@@ -61,7 +61,7 @@ class SqLite():
             cursor.execute(insert_query,(spell_class.name,spell_class.level,':'.join(spell_class.components),spell_class.resistance,spell_class.classLinked,))
             self.sqliteConnection.commit()
             cursor.close()
-            print("Data put done")
+            print("Data put in sqlLite")
         except sqlite3.Error as error:
             print("can't put data", error)
 
@@ -75,3 +75,16 @@ class SqLite():
 
         for r in result:
             print(r)
+
+    def drop_table(self):
+        try:
+            self.sqliteConnection = sqlite3.connect(db_name)
+            cursor = self.sqliteConnection.cursor()
+            cursor.execute(drop_table_query)
+            self.sqliteConnection.commit()
+            cursor.close()
+            print("table drop done")
+            self.create_base()
+
+        except sqlite3.Error as error:
+            print("can't drop table", error)

@@ -69,6 +69,7 @@ def fill_file(spell):
             f.write(json.dumps(feeds, indent=2))
 
 def parsePage(mongo, prs, sqLite):
+    sqLite.drop_table()
     soup = prs.init_soup("Spells.aspx?Class=All")
 
     for url in soup.find_all('td'):
@@ -122,11 +123,10 @@ def parsePage(mongo, prs, sqLite):
 
 def fill_db_file(mongo, sqLite):
     filename = 'myFile.json'
-
+    sqLite.drop_table()
     with open(filename) as feedsjson:
         feeds = json.load(feedsjson)
 
-    print(feeds[0])
     for spell in feeds:
         spell_class = Spell(spell["name"])
         spell_class.level = spell["level"]

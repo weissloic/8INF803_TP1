@@ -38,5 +38,5 @@ services:
 
 networks:
   back:
-    external: true
+    external: false
     name: back
