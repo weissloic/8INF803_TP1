@@ -1,41 +1,41 @@
-{'_id': 'Anti-Summoning Shield', 'value': '0VVVVVVVV'}
-{'_id': 'Anticipate Thoughts', 'value': '0VVVVVVVV'}
-{'_id': 'Anywhere but Here', 'value': '0VVVVVVVV'}
-{'_id': 'Apport Animal', 'value': '0VVVVVVVV'}
-{'_id': 'Apport Object', 'value': '0VVVVVVVV'}
-{'_id': 'Blindness/Deafness', 'value': '0VVVVVVVV'}
-{'_id': 'Blur', 'value': '0VVVVVVVV'}
-{'_id': 'Buoyancy', 'value': '0VVVVVVVV'}
-{'_id': 'Chastise', 'value': '0VVVVVVVV'}
-{'_id': 'Decrepit Disguise', 'value': '0VVVVVVVV'}
-{'_id': 'Deja Vu', 'value': '0VVVVVVVV'}
-{'_id': 'Desperate Weapon', 'value': '0VVVVVVVV'}
-{'_id': 'Dimension Door', 'value': '0VVVVVVVV'}
-{'_id': 'Dweomer Retaliation', 'value': '0VVVVVVVV'}
-{'_id': 'Emergency Force Sphere', 'value': '0VVVVVVVV'}
-{'_id': 'Energy Hack', 'value': '0VVVVVVVV'}
-{'_id': 'Feather Fall', 'value': '0VVVVVVVV'}
-{'_id': 'Flare', 'value': '0VVVVVVVV'}
-{'_id': 'Flare Burst', 'value': '0VVVVVVVV'}
-{'_id': 'Fleeting Memory', 'value': '0VVVVVVVV'}
-{'_id': "Fool's Teleport", 'value': '0VVVVVVVV'}
-{'_id': 'Geas, Lesser', 'value': '0VVVVVVVV'}
-{'_id': 'Grasp', 'value': '0VVVVVVVV'}
-{'_id': 'Hold Portal', 'value': '0VVVVVVVV'}
-{'_id': 'Hypercognition', 'value': '0VVVVVVVV'}
-{'_id': 'Knock', 'value': '0VVVVVVVV'}
-{'_id': 'Liberating Command', 'value': '0VVVVVVVV'}
-{'_id': 'Mindlink', 'value': '0VVVVVVVV'}
-{'_id': 'Mindwipe', 'value': '0VVVVVVVV'}
-{'_id': 'Night Blindness', 'value': '0VVVVVVVV'}
-{'_id': 'Oath of Anonymity', 'value': '0VVVVVVVV'}
-{'_id': 'Psychic Reading', 'value': '0VVVVVVVV'}
-{'_id': "Raven's Flight", 'value': '0VVVVVVVV'}
-{'_id': 'Shout', 'value': '0VVVVVVVV'}
-{'_id': 'Silent Table', 'value': '0VVVVVVVV'}
-{'_id': 'Sotto Voce', 'value': '0VVVVVVVV'}
-{'_id': 'Steal Voice', 'value': '0VVVVVVVV'}
-{'_id': 'Sundering Shards', 'value': '0VVVVVVVV'}
-{'_id': 'Touch of Blindness', 'value': '0VVVVVVVV'}
-{'_id': 'Vacuous Vessel', 'value': '0VVVVVVVV'}
-{'_id': 'Wave Shield', 'value': '0VVVVVVVV'}
+{'_id': 'Anti-Summoning Shield', 'value': ['V']}
+{'_id': 'Anticipate Thoughts', 'value': ['V']}
+{'_id': 'Anywhere but Here', 'value': ['V']}
+{'_id': 'Apport Animal', 'value': ['V']}
+{'_id': 'Apport Object', 'value': ['V']}
+{'_id': 'Blindness/Deafness', 'value': ['V']}
+{'_id': 'Blur', 'value': ['V']}
+{'_id': 'Buoyancy', 'value': ['V']}
+{'_id': 'Chastise', 'value': ['V']}
+{'_id': 'Decrepit Disguise', 'value': ['V']}
+{'_id': 'Deja Vu', 'value': ['V']}
+{'_id': 'Desperate Weapon', 'value': ['V']}
+{'_id': 'Dimension Door', 'value': ['V']}
+{'_id': 'Dweomer Retaliation', 'value': ['V']}
+{'_id': 'Emergency Force Sphere', 'value': ['V']}
+{'_id': 'Energy Hack', 'value': ['V']}
+{'_id': 'Feather Fall', 'value': ['V']}
+{'_id': 'Flare', 'value': ['V']}
+{'_id': 'Flare Burst', 'value': ['V']}
+{'_id': 'Fleeting Memory', 'value': ['V']}
+{'_id': "Fool's Teleport", 'value': ['V']}
+{'_id': 'Geas, Lesser', 'value': ['V']}
+{'_id': 'Grasp', 'value': ['V']}
+{'_id': 'Hold Portal', 'value': ['V']}
+{'_id': 'Hypercognition', 'value': ['V']}
+{'_id': 'Knock', 'value': ['V']}
+{'_id': 'Liberating Command', 'value': ['V']}
+{'_id': 'Mindlink', 'value': ['V']}
+{'_id': 'Mindwipe', 'value': ['V']}
+{'_id': 'Night Blindness', 'value': ['V']}
+{'_id': 'Oath of Anonymity', 'value': ['V']}
+{'_id': 'Psychic Reading', 'value': ['V']}
+{'_id': "Raven's Flight", 'value': ['V']}
+{'_id': 'Shout', 'value': ['V']}
+{'_id': 'Silent Table', 'value': ['V']}
+{'_id': 'Sotto Voce', 'value': ['V']}
+{'_id': 'Steal Voice', 'value': ['V']}
+{'_id': 'Sundering Shards', 'value': ['V']}
+{'_id': 'Touch of Blindness', 'value': ['V']}
+{'_id': 'Vacuous Vessel', 'value': ['V']}
+{'_id': 'Wave Shield', 'value': ['V']}

@@ -20,7 +20,7 @@ def getComponent(find_infos):
 
     listComp = tmpComponent.split(",")
     listComp = [x.strip(' ') for x in listComp]
-    print(listComp)
+    #print(listComp)
 
     return listComp
 
@@ -76,13 +76,38 @@ def parsePage(mongo, prs, sqLite):
         spell_class = Spell(prs.get_spell_name(url))
         #spell_class = Spell("Dimension Door")
         soup = prs.init_soup("SpellDisplay.aspx?ItemName=" + spell_class.url)
+
+
         spellDiv = soup.find(id="ctl00_MainContent_DataListTypes")
+
+
 
         if "(" in spell_class.name:
             spell_class.name = spell_class.name.replace("(", "\(").replace(")", "\)")
 
-        regex = spell_class.name + "<\/h1>.*(Level<\/b>(.*?))<.*Description<\/h3>"
+        #print(spellDiv)
+        #"Absorb Rune II.*?(<.*?Description<\/h3>).*?(PFS)"
+        #Absorb Rune III.*?(<.*?Description<\/h3>).*(<\/)
+        desc = spell_class.name + ".*?(<.*?Description<\/h3>)(.*)?(PFS)"
+        desc2 = spell_class.name + ".*?(<.*?Description<\/h3>)(.*)(<\/spa)"
+
         spellDiv = str(spellDiv).replace("\n", "")
+        findDesc = re.search(desc, str(spellDiv))
+
+        description = ""
+
+        if findDesc != None:
+            description = findDesc.group(2)
+        else:
+            findDesc2 = re.search(desc2, str(spellDiv))
+            if (findDesc2 != None):
+                description = findDesc2.group(2)
+
+
+
+
+        regex = spell_class.name + "<\/h1>.*(Level<\/b>(.*?))<.*Description<\/h3>"
+
         find_infos = re.search(regex, str(spellDiv))
 
         if find_infos:
@@ -91,25 +116,32 @@ def parsePage(mongo, prs, sqLite):
 
             print("name class: " + spell_class.name)
             find_infos = re.search(regex, str(spellDiv))
-            print(find_infos.group(1))
-            print(re.sub(r"\([^()]*\)", "", find_infos.group(2)))
+            #print(find_infos.group(1))
+            #print(re.sub(r"\([^()]*\)", "", find_infos.group(2)))
 
             spell_class.classLinked = getClassLinked(find_infos)
             spell_class.level = getLevel(spell_class.classLinked, prs)
             spell_class.components = getComponent(find_infos)
             spell_class.resistance = getResistance(find_infos, prs.spell_found)
 
+
+
             spell = {
                 'name': spell_class.name,
                 'level': spell_class.level,
+                'url': "https://aonprd.com/SpellDisplay.aspx?ItemName=" + spell_class.url,
+                'des': description,
                 'class_linked': spell_class.classLinked,
                 'components': spell_class.components,
                 'spell_resistance': spell_class.resistance
             }
 
-            mongo.db.reviews.insert_one(spell)
-            print("data put in mongoBD")
-            sqLite.put_spell(spell_class)
+            print(spell)
+            fill_file(spell)
+
+            #mongo.db.reviews.insert_one(spell)
+            #print("data put in mongoBD")
+            #sqLite.put_spell(spell_class)
             #result = mongo.db.reviews.insert_one(spell)
 
         else:

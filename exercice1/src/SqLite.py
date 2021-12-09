@@ -24,7 +24,9 @@ AND (
 class_linked LIKE '%wizard 4%' 
 OR class_linked LIKE '%wizard 3%'
 OR class_linked LIKE '%wizard 2%' 
-OR class_linked LIKE '%wizard 1%' )
+OR class_linked LIKE '%wizard 1%'
+OR class_linked LIKE '%wizard 0%'
+ )
 '''
 
 
